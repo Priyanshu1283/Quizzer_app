@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import testRoutes from "./routes/test.route.js";
 import attemptRoutes from "./routes/attempt.route.js";
+import rewardRoutes from "./routes/reward.route.js";
 import cors from 'cors'
 
 
@@ -30,7 +31,7 @@ passport.use(
     {
       clientID: config.CLIENT_ID,
       clientSecret: config.CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback",
+      callbackURL: "http://localhost:3000/api/auth/google/callback",
     },
     (accessToken, refreshToken, profile, done) => {
       // You can log or store user data here
@@ -53,5 +54,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/attempt", attemptRoutes);
+app.use("/api/reward", rewardRoutes);
 
 export default app;

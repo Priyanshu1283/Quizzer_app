@@ -1,12 +1,12 @@
 import express from "express";
 import { startAttempt, submitSection, submitTest, getResult } from "../controllers/attempt.controller.js";
-// import { verifyToken } from "../middlewares/auth.middleware.js"; // To be implemented
+import { authenticateUser } from "../middlewares/validations.middleware.js";
 
 const router = express.Router();
 
-router.post("/start", startAttempt);
-router.post("/submit-section", submitSection);
-router.post("/submit", submitTest);
-router.get("/result/:resultId", getResult);
+router.post("/start", authenticateUser, startAttempt);
+router.post("/submit-section", authenticateUser, submitSection);
+router.post("/submit", authenticateUser, submitTest);
+router.get("/result/:resultId", authenticateUser, getResult);
 
 export default router;

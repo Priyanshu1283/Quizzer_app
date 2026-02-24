@@ -92,8 +92,18 @@ export const getAllTestSeries = async (req, res) => {
         console.error("Error fetching test series:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
-
 };
+
+export const getAllMockTests = async (req, res) => {
+    try {
+        const mockTests = await MockTest.find({ isActive: true }).select("title _id testSeriesId totalTime");
+        res.status(200).json(mockTests);
+    } catch (error) {
+        console.error("Error fetching all mock tests:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
 
 export const getMockTestDetailsWithCounts = async (req, res) => {
     try {

@@ -5,13 +5,19 @@ import MockTest from "../models/mockTest.model.js";
 
 export const startAttempt = async (req, res) => {
     try {
-        const { userId, mockTestId } = req.body;
+        // userId comes from the authenticated JWT, not from client body (security fix)
+        const userId = req.user._id;
+        const { mockTestId } = req.body;
 
-        // Check if there is already an active attempt (optional, based on requirements)
-        // const activeAttempt = await Attempt.findOne({ userId, mockTestId, status: "started" });
-        // if (activeAttempt) {
-        //   return res.status(200).json({ attempt: activeAttempt, message: "Resuming attempt" });
-        // }
+        if (!mockTestId) {
+            return res.status(400).json({ message: "mockTestId is required" });
+        }
+
+        // Resume existing active attempt if it exists
+        const existingAttempt = await Attempt.findOne({ userId, mockTestId, status: "started" });
+        if (existingAttempt) {
+            return res.status(200).json({ attempt: existingAttempt, message: "Resuming existing attempt" });
+        }
 
         const attempt = await Attempt.create({
             userId,
@@ -21,8 +27,8 @@ export const startAttempt = async (req, res) => {
 
         res.status(201).json({ attempt });
     } catch (error) {
-        console.error("Error in startAttempt:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        console.error("Error in startAttempt:", error.message);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
 
@@ -89,14 +95,15 @@ export const submitTest = async (req, res) => {
         });
 
         // Process all questions to calculate score
-        // Iterate over All QUESTIONS in the test to account for unattempted ones
+        // Iterate over ALL questions in the test to account for unattempted ones
         questions.forEach(question => {
             const questionId = question._id.toString();
-            const response = attempt.responses.find(r => r.questionId && r.questionId._id.toString() === questionId); // attempt.responses has populated questionId? No, wait. 
-            // Logic fix: attempt.responses.questionId might be populated if we did populate above. 
-            // Rethink: attempt.responses in DB stores ObjectId. 
-            // In the findById above, we did `.populate("responses.questionId")`. 
-            // So r.questionId is the full object.
+            // After populate, r.questionId is a full object; use _id to compare
+            const response = attempt.responses.find(r => {
+                if (!r.questionId) return false;
+                const rId = r.questionId._id ? r.questionId._id.toString() : r.questionId.toString();
+                return rId === questionId;
+            });
 
             const sectionStats = sectionAnalysis.get(question.sectionName);
 

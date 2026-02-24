@@ -16,6 +16,8 @@ const AdminDashboard = () => {
     // Data States
     const [selectedMockDetails, setSelectedMockDetails] = useState(null);
     const [topPerformers, setTopPerformers] = useState([]);
+    const [stats, setStats] = useState({ totalAttempts: 0, uniqueUsers: 0 });
+    const [mockTests, setMockTests] = useState([]);
 
     // API Helpers
     const createSeries = async () => {
@@ -47,12 +49,9 @@ const AdminDashboard = () => {
         }
     };
 
-    const [stats, setStats] = useState({ totalAttempts: 0, uniqueUsers: 0 });
-
     const fetchTopPerformers = async () => {
         try {
             const data = await api.getTopPerformers();
-            // Check if data has leaderboard property (new structure) or is array (old/fallback)
             if (data.leaderboard) {
                 setTopPerformers(data.leaderboard);
                 setStats(data.stats);
@@ -64,12 +63,19 @@ const AdminDashboard = () => {
         }
     };
 
-    // Fetch leaderboard when tab changes
-    useEffect(() => {
-        if (activeTab === 'leaderboard') {
-            fetchTopPerformers();
-        }
-    }, [activeTab]);
+    const fetchMockTests = async () => {
+        try {
+            const data = await api.getAllMockTests();
+            setMockTests(data);
+        } catch (e) { console.error("Error fetching mock tests", e); }
+    };
+
+    const generateRewards = async (mockTestId) => {
+        try {
+            await api.generateRewards(mockTestId, 3);
+            setMessage('Rewards Generated Successfully!');
+        } catch (e) { setMessage('Error generating rewards'); }
+    };
 
     const addQuestion = async () => {
         try {
@@ -77,12 +83,19 @@ const AdminDashboard = () => {
             const payload = { ...questionData, options };
             await axios.post('http://localhost:3000/api/admin/question', payload, { withCredentials: true });
             setMessage('Question Added!');
-            // Refresh details to update counts
             fetchMockDetails();
-            // Reset question text and options but keep context
             setQuestionData({ ...questionData, text: '', option1: '', option2: '', option3: '', option4: '' });
         } catch (e) { setMessage('Error adding question'); }
     };
+
+    // Fetch leaderboard when tab changes
+    useEffect(() => {
+        if (activeTab === 'leaderboard') {
+            fetchTopPerformers();
+        }
+    }, [activeTab]);
+
+    const tabs = ['series', 'mock', 'question', 'leaderboard', 'rewards'];
 
     return (
         <div className="min-h-screen bg-gray-100 p-8">
@@ -91,18 +104,22 @@ const AdminDashboard = () => {
             {message && <div className={`p-3 rounded mb-4 ${message.includes('Error') || message.includes('Invalid') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{message}</div>}
 
             <div className="flex space-x-4 mb-6">
-                {['series', 'mock', 'question', 'leaderboard'].map(tab => (
+                {tabs.map(tab => (
                     <button
                         key={tab}
-                        onClick={() => setActiveTab(tab)}
+                        onClick={() => {
+                            setActiveTab(tab);
+                            if (tab === 'rewards') fetchMockTests();
+                        }}
                         className={`px-4 py-2 rounded capitalize ${activeTab === tab ? 'bg-blue-600 text-white' : 'bg-white text-gray-700'}`}
                     >
-                        {tab === 'leaderboard' ? 'Top 10 Performers' : `Create ${tab}`}
+                        {tab === 'leaderboard' ? 'Top 10 Performers' : tab === 'rewards' ? 'Manage Rewards' : `Create ${tab}`}
                     </button>
                 ))}
             </div>
 
             <div className="bg-white p-6 rounded shadow-md max-w-4xl">
+                {/* ... existing series, mock, question tabs ... */}
                 {activeTab === 'series' && (
                     <div className="space-y-4">
                         <h2 className="text-xl font-semibold">Create Test Series</h2>
@@ -254,6 +271,28 @@ const AdminDashboard = () => {
                                     </table>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'rewards' && (
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-semibold">Reward Management</h2>
+                        <div className="bg-orange-50 p-4 border border-orange-200 rounded text-sm text-orange-800">
+                            Note: Generation creates rewards for top 3 rankers of selected test.
+                        </div>
+                        <div className="divide-y">
+                            {mockTests.map(test => (
+                                <div key={test._id} className="py-4 flex justify-between items-center">
+                                    <div>
+                                        <div className="font-bold">{test.title}</div>
+                                        <div className="text-xs text-gray-500">ID: {test._id}</div>
+                                    </div>
+                                    <Button onClick={() => generateRewards(test._id)} className="bg-indigo-600 text-white py-1">
+                                        Generate Rewards
+                                    </Button>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
