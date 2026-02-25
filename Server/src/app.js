@@ -13,10 +13,21 @@ import cors from 'cors'
 
 
 const app = express();
+
+// Allow requests from the configured frontend URL (local or deployed)
+const allowedOrigins = [
+  config.FRONTEND_URL,
+  'http://localhost:5173', // always allow local dev
+].filter(Boolean);
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    // allow requests with no origin (e.g. mobile apps, curl, Postman)
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true,
-}))
+}));
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -31,7 +42,8 @@ passport.use(
     {
       clientID: config.CLIENT_ID,
       clientSecret: config.CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/api/auth/google/callback",
+      // Uses BASE_URL env var so the callback URL is correct in both local dev and production
+      callbackURL: `${config.BASE_URL}/api/auth/google/callback`,
     },
     (accessToken, refreshToken, profile, done) => {
       // You can log or store user data here

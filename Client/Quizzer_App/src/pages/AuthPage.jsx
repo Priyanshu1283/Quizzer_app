@@ -38,7 +38,7 @@ export const AuthPage = () => {
     finally { setLoading(false) }
   }
 
-  const googleRedirect = () => { window.location.href = 'http://localhost:3000/api/auth/google' }
+  const googleRedirect = () => { window.location.href = 'https://quizz-4c67.onrender.com/api/auth/google' }
 
   const tabBtn = (label, active, onClick) => (
     <button onClick={onClick}
@@ -94,7 +94,7 @@ export const AuthPage = () => {
                   <Input label="Email Address" name="email" value={loginData.email} onChange={handleChange(setLoginData)} type="email" placeholder="you@example.com" />
                   <Input label="Password" name="password" value={loginData.password} onChange={handleChange(setLoginData)} type="password" placeholder="••••••••" />
                   <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 py-3 text-base">
-                    {loading ? 'Signing in...' : isAdminLogin ? '🔐 Admin Sign In' : 'Sign In'}
+                    {loading ? 'Signing in...' : isAdminLogin ? ' Admin Sign In' : 'Sign In'}
                   </Button>
                   <div className="relative my-2 flex items-center gap-3">
                     <div className="flex-1 h-px bg-gray-200" />

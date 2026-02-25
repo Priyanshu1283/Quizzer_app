@@ -22,7 +22,7 @@ const AdminDashboard = () => {
     // API Helpers
     const createSeries = async () => {
         try {
-            await axios.post('http://localhost:3000/api/admin/test-series', seriesData, { withCredentials: true });
+            await axios.post('https://quizz-4c67.onrender.com/api/admin/test-series', seriesData, { withCredentials: true });
             setMessage('Series Created!');
             setSeriesData({ name: '', description: '' });
         } catch (e) { setMessage('Error creating series'); }
@@ -32,7 +32,7 @@ const AdminDashboard = () => {
         try {
             const sections = [{ name: mockData.sectionName, duration: mockData.sectionDuration, totalQuestions: mockData.sectionQCount }];
             const payload = { ...mockData, sections };
-            await axios.post('http://localhost:3000/api/admin/mock-test', payload, { withCredentials: true });
+            await axios.post('https://quizz-4c67.onrender.com/api/admin/mock-test', payload, { withCredentials: true });
             setMessage('Mock Test Created!');
         } catch (e) { setMessage('Error creating mock test'); }
     };
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
         try {
             const options = [questionData.option1, questionData.option2, questionData.option3, questionData.option4];
             const payload = { ...questionData, options };
-            await axios.post('http://localhost:3000/api/admin/question', payload, { withCredentials: true });
+            await axios.post('https://quizz-4c67.onrender.com/api/admin/question', payload, { withCredentials: true });
             setMessage('Question Added!');
             fetchMockDetails();
             setQuestionData({ ...questionData, text: '', option1: '', option2: '', option3: '', option4: '' });

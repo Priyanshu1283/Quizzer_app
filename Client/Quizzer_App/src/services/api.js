@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://quizz-4c67.onrender.com/api';
 
 const api = axios.create({
     baseURL: API_URL,
