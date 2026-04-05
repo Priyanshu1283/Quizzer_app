@@ -1,10 +1,36 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+/** Hosted backend (Render). Used in dev and production unless overridden. */
+const DEFAULT_API_BASE = 'https://quizzer-app-cgig.onrender.com/api';
+
+/**
+ * Override with VITE_API_BASE_URL when pointing at a local server, e.g.
+ * VITE_API_BASE_URL=http://localhost:3000/api
+ */
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE;
+
+const AUTH_TOKEN_KEY = 'quizzer_auth_token';
+
+export function setAuthToken(token) {
+    if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
+    else localStorage.removeItem(AUTH_TOKEN_KEY);
+}
+
+export function getAuthToken() {
+    return localStorage.getItem(AUTH_TOKEN_KEY);
+}
 
 const api = axios.create({
-    baseURL: API_URL,
+    baseURL: API_BASE_URL,
     withCredentials: true,
+});
+
+api.interceptors.request.use((config) => {
+    const t = getAuthToken();
+    if (t) {
+        config.headers.Authorization = `Bearer ${t}`;
+    }
+    return config;
 });
 
 export const getTestSeries = async () => {

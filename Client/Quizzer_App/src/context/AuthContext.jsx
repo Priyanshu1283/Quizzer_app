@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import authService from '../services/auth'
+import { setAuthToken } from '../services/api'
 import { useNavigate } from 'react-router-dom'
 
 const AuthContext = createContext()
@@ -13,6 +14,16 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     let mounted = true
+    const hash = window.location.hash
+    if (hash.startsWith('#auth=')) {
+      const raw = hash.slice(6)
+      try {
+        setAuthToken(decodeURIComponent(raw))
+      } catch {
+        setAuthToken(raw)
+      }
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
     authService
       .me()
       .then((res) => {
@@ -26,6 +37,7 @@ export const AuthProvider = ({ children }) => {
         }
       })
       .catch((err) => {
+        if (err.response?.status === 401) setAuthToken(null)
         console.error("Auth check failed", err);
         setUser(null);
       })
@@ -36,12 +48,12 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogin = async (creds, isAdminLogin = false) => {
     const res = await authService.login(creds)
+    if (res.data?.token) setAuthToken(res.data.token)
     const payload = res.data?.user ?? res.data
 
     if (isAdminLogin && payload?.role !== 'admin') {
-      // If trying to login as admin but not admin, deny access logic
-      // We shouldn't set user state, instead logout (backend clean up) and throw error
       await authService.logout()
+      setAuthToken(null)
       throw new Error("Access Denied: You are not an admin.")
     }
 
@@ -56,6 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleRegister = async (payload) => {
     const res = await authService.register(payload)
+    if (res.data?.token) setAuthToken(res.data.token)
     const data = res.data?.user ?? res.data
     setUser(data)
     navigate('/dashboard')
@@ -69,6 +82,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout failed', err)
       // ignore
     }
+    setAuthToken(null)
     setUser(null)
     navigate('/auth')
   }

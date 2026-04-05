@@ -3,6 +3,17 @@ import jwt from "jsonwebtoken";
 import _config from "../config/config.js";
 import userModel from "../models/user.model.js";
 
+/** Cookie (httpOnly) or `Authorization: Bearer <jwt>` — needed when SPA and API are on different origins. */
+export function getTokenFromRequest(req) {
+  const fromCookie = req.cookies?.token;
+  if (fromCookie) return fromCookie;
+  const auth = req.headers?.authorization;
+  if (auth && /^Bearer\s+/i.test(auth)) {
+    return auth.replace(/^Bearer\s+/i, "").trim();
+  }
+  return null;
+}
+
 async function validate(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -29,7 +40,7 @@ export const registerUserValidationRule = [
 
 export async function authenticateUser(req, res, next) {
   try {
-    const token = req.cookies.token;
+    const token = getTokenFromRequest(req);
 
     if (!token) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -65,7 +76,7 @@ export function requireAdmin(req, res, next) {
 // Soft authentication for /me endpoint to avoid 401 console errors
 export async function getProfileUser(req, res, next) {
   try {
-    const token = req.cookies.token;
+    const token = getTokenFromRequest(req);
 
     if (!token) {
       req.user = null;

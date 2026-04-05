@@ -2,6 +2,7 @@ import express from 'express';
 import * as authController from '../controllers/auth.controller.js'
 import * as validationRules from '../middlewares/validations.middleware.js'
 import passport from 'passport';
+import config from '../config/config.js';
 
 
 const router = express.Router();
@@ -9,10 +10,18 @@ const router = express.Router();
 router.post("/register", validationRules.registerUserValidationRule, authController.register);
 
 
-// Route to initiate Google OAuth flow
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+// Route to initiate Google OAuth flow (?redirect= must match an allowed origin)
+router.get('/google', (req, res, next) => {
+  const q = req.query.redirect;
+  let state = config.CLIENT_URL;
+  if (typeof q === 'string' && config.allowedOrigins.includes(q)) {
+    state = q;
+  }
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    state,
+  })(req, res, next);
+});
 
 
 

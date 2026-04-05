@@ -4,6 +4,7 @@ import Input from '../components/Input'
 import Button from '../components/Button'
 import ThemeToggle from '../components/ThemeToggle'
 import { useAuth } from '../context/AuthContext'
+import { API_BASE_URL } from '../services/api'
 
 export const AuthPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -53,8 +54,10 @@ export const AuthPage = () => {
     finally { setLoading(false) }
   }
 
-  const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-  const googleRedirect = () => { window.location.href = `${API_URL}/auth/google`; }
+  const googleRedirect = () => {
+    const origin = window.location.origin;
+    window.location.href = `${API_BASE_URL}/auth/google?redirect=${encodeURIComponent(origin)}`;
+  };
 
   const tabBtn = (label, active, onClick) => (
     <button onClick={onClick}

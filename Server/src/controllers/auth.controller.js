@@ -1,7 +1,15 @@
 import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import _config from "../config/config.js";
+import _config, { tokenCookieOptions } from "../config/config.js";
+
+function clientBaseFromOAuth(req) {
+  const state = req.query?.state;
+  if (typeof state === "string" && _config.allowedOrigins.includes(state)) {
+    return state;
+  }
+  return _config.CLIENT_URL;
+}
 // import { publishQueue } from "../broker/rabbit.js";
 
 export async function register(req, res) {
@@ -45,10 +53,11 @@ export async function register(req, res) {
     //   role: user.role,
     // });
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, tokenCookieOptions);
 
     res.status(201).json({
       message: "User created successfully",
+      token,
       user: {
         id: user._id,
         email: user.email,
@@ -65,6 +74,7 @@ export async function register(req, res) {
 export async function googleAuthCallback(req, res) {
   try {
     const user = req.user;
+    const clientBase = clientBaseFromOAuth(req);
 
     // Google sends emails[] (not email[])
     const email = user.emails?.[0]?.value;
@@ -90,9 +100,11 @@ export async function googleAuthCallback(req, res) {
         { expiresIn: "2d" }
       );
 
-      res.cookie("token", token, { httpOnly: true });
-      // redirect to frontend dashboard after setting cookie
-      return res.redirect(`${_config.CLIENT_URL}/dashboard`);
+      res.cookie("token", token, tokenCookieOptions);
+      // Fragment carries JWT for SPAs when cross-origin cookies are unreliable; cookie is still set when possible
+      return res.redirect(
+        `${clientBase}/dashboard#auth=${encodeURIComponent(token)}`
+      );
     }
 
     // Create a new user if not exist
@@ -121,11 +133,13 @@ export async function googleAuthCallback(req, res) {
       { expiresIn: "2d" }
     );
 
-    res.cookie("token", token, { httpOnly: true });
-    // redirect to frontend dashboard after signup
-    return res.redirect(`${_config.CLIENT_URL}/dashboard`);
+    res.cookie("token", token, tokenCookieOptions);
+    return res.redirect(
+      `${clientBase}/dashboard#auth=${encodeURIComponent(token)}`
+    );
   } catch (error) {
     console.error("Error in googleAuthCallback:", error);
+    const clientBase = clientBaseFromOAuth(req);
     const dbIssue =
       error.name === "MongooseError" ||
       /MongoNetworkError|MongoServerSelectionError|not connected/i.test(
@@ -133,10 +147,10 @@ export async function googleAuthCallback(req, res) {
       );
     if (dbIssue) {
       return res.redirect(
-        `${_config.CLIENT_URL}/auth?error=database_unavailable`
+        `${clientBase}/auth?error=database_unavailable`
       );
     }
-    return res.redirect(`${_config.CLIENT_URL}/auth?error=oauth_failed`);
+    return res.redirect(`${clientBase}/auth?error=oauth_failed`);
   }
 }
 
@@ -168,10 +182,11 @@ export async function login(req, res) {
       { expiresIn: "2d" }
     );
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, tokenCookieOptions);
 
     return res.status(200).json({
       message: "Login successfully",
+      token,
       user: {
         id: user._id,
         email: user.email,
@@ -190,7 +205,11 @@ export async function login(req, res) {
 
 export async function logout(req, res) {
   try {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: tokenCookieOptions.secure,
+      sameSite: tokenCookieOptions.sameSite,
+    });
     return res.status(200).json({
       message: "Logout successfully",
     });

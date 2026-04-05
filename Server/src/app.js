@@ -14,10 +14,19 @@ import cors from 'cors'
 
 
 const app = express();
-app.use(cors({
-  origin: config.CLIENT_URL,
-  credentials: true,
-}))
+app.set("trust proxy", 1);
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (config.allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(null, false);
+    },
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  })
+);
 
 app.use(morgan("dev"));
 app.use(express.json());
