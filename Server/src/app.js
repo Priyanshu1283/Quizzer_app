@@ -41,7 +41,10 @@ passport.use(
     {
       clientID: config.CLIENT_ID,
       clientSecret: config.CLIENT_SECRET,
-      callbackURL: config.GOOGLE_CALLBACK_URL || `${config.SERVER_URL}/api/auth/google/callback`,
+      callbackURL:
+        config.GOOGLE_CALLBACK_URL ||
+        `${config.SERVER_URL}/api/auth/google/callback`,
+      scope: ["openid", "profile", "email"],
     },
     (accessToken, refreshToken, profile, done) => {
       // You can log or store user data here

@@ -13,6 +13,17 @@ function parseAllowedOrigins() {
 
 const allowedOrigins = parseAllowedOrigins();
 
+/** Render sets this to your public HTTPS URL (e.g. https://xxx.onrender.com) — avoids OAuth redirecting to localhost. */
+const renderPublicBase = (process.env.RENDER_EXTERNAL_URL || "").trim().replace(/\/$/, "");
+
+const serverUrl =
+  process.env.SERVER_URL || (renderPublicBase || "http://localhost:3000");
+
+/** Must match an "Authorized redirect URI" in Google Cloud Console exactly. */
+const googleOAuthCallbackUrl =
+  process.env.GOOGLE_CALLBACK_URL ||
+  (renderPublicBase ? `${renderPublicBase}/api/auth/google/callback` : undefined);
+
 const _config = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
@@ -24,8 +35,8 @@ const _config = {
   allowedOrigins,
   /** Default frontend base URL (redirects when OAuth state is missing) */
   CLIENT_URL: process.env.CLIENT_URL || allowedOrigins[0] || "http://localhost:5173",
-  SERVER_URL: process.env.SERVER_URL || "http://localhost:3000",
-  GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
+  SERVER_URL: serverUrl,
+  GOOGLE_CALLBACK_URL: googleOAuthCallbackUrl,
   PER_QUESTION_SECONDS: Number(process.env.PER_QUESTION_SECONDS || 60),
   RAZORPAY_KEY_ID:
     process.env.RAZORPAY_KEY_ID ||
@@ -40,12 +51,14 @@ const _config = {
     process.env.COOKIE_SECURE === "true" ||
     process.env.NODE_ENV === "production" ||
     process.env.RENDER === "true" ||
-    (process.env.SERVER_URL && String(process.env.SERVER_URL).startsWith("https://")),
+    serverUrl.startsWith("https://") ||
+    !!renderPublicBase,
   COOKIE_SAMESITE:
     process.env.COOKIE_SAMESITE ||
     (process.env.NODE_ENV === "production" ||
     process.env.RENDER === "true" ||
-    (process.env.SERVER_URL && String(process.env.SERVER_URL).startsWith("https://"))
+    serverUrl.startsWith("https://") ||
+    !!renderPublicBase
       ? "none"
       : "lax"),
 };
