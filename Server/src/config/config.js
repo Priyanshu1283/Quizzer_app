@@ -7,10 +7,19 @@ const _config = {
   CLIENT_ID: process.env.CLIENT_ID,
   CLIENT_SECRET: process.env.CLIENT_SECRET,
   RABBITMQ_URI: process.env.RABBITMQ_URI,
-  // Base URL of this backend (e.g. https://quizz-4c67.onrender.com in prod, http://localhost:3000 in dev)
-  BASE_URL: process.env.BASE_URL || 'http://localhost:3000',
-  // Base URL of the frontend (e.g. your Vercel URL in prod, http://localhost:5173 in dev)
-  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
+  PORT: process.env.PORT || 3000,
+  CLIENT_URL: process.env.CLIENT_URL || "http://localhost:5173",
+  SERVER_URL: process.env.SERVER_URL || "http://localhost:3000",
+  GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
+  PER_QUESTION_SECONDS: Number(process.env.PER_QUESTION_SECONDS || 60),
+  RAZORPAY_KEY_ID:
+    process.env.RAZORPAY_KEY_ID ||
+    process.env.Razorpay_Key_Id ||
+    process.env.RAZORPAY_KEYID,
+  RAZORPAY_KEY_SECRET:
+    process.env.RAZORPAY_KEY_SECRET ||
+    process.env.Razorpay_Key_Secret ||
+    process.env.RAZORPAY_SECRET,
 };
 
 export default _config;

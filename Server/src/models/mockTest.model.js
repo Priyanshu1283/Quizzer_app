@@ -7,6 +7,11 @@ const mockTestSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        description: {
+            type: String,
+            trim: true,
+            default: "",
+        },
         testSeriesId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "TestSeries",
@@ -19,6 +24,7 @@ const mockTestSchema = new mongoose.Schema(
         price: {
             type: Number,
             default: 0,
+            min: [0, "Price cannot be negative"],
         },
         sections: [
             {

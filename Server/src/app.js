@@ -9,25 +9,15 @@ import adminRoutes from "./routes/admin.route.js";
 import testRoutes from "./routes/test.route.js";
 import attemptRoutes from "./routes/attempt.route.js";
 import rewardRoutes from "./routes/reward.route.js";
+import paymentRoutes from "./routes/payment.route.js";
 import cors from 'cors'
 
 
 const app = express();
-
-// Allow requests from the configured frontend URL (local or deployed)
-const allowedOrigins = [
-  config.FRONTEND_URL,
-  'http://localhost:5173', // always allow local dev
-].filter(Boolean);
-
 app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (e.g. mobile apps, curl, Postman)
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: origin ${origin} not allowed`));
-  },
+  origin: config.CLIENT_URL,
   credentials: true,
-}));
+}))
 
 app.use(morgan("dev"));
 app.use(express.json());
@@ -42,8 +32,7 @@ passport.use(
     {
       clientID: config.CLIENT_ID,
       clientSecret: config.CLIENT_SECRET,
-      // Uses BASE_URL env var so the callback URL is correct in both local dev and production
-      callbackURL: `${config.BASE_URL}/api/auth/google/callback`,
+      callbackURL: config.GOOGLE_CALLBACK_URL || `${config.SERVER_URL}/api/auth/google/callback`,
     },
     (accessToken, refreshToken, profile, done) => {
       // You can log or store user data here
@@ -67,5 +56,6 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/attempt", attemptRoutes);
 app.use("/api/reward", rewardRoutes);
+app.use("/api/payment", paymentRoutes);
 
 export default app;

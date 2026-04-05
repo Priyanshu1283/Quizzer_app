@@ -1,15 +1,24 @@
 import express from "express";
-import { getTestSeries, getMockTests, getTestDetails, startTest } from "../controllers/test.controller.js";
-// import { verifyToken } from "../middlewares/auth.middleware.js"; // To be implemented/verified
+import {
+    getTestSeries,
+    getMocksCatalog,
+    getMockTests,
+    getTestDetails,
+    startTest,
+    getLeaderboard,
+} from "../controllers/test.controller.js";
+import { authenticateUser } from "../middlewares/validations.middleware.js";
 
 const router = express.Router();
 
-// Public routes (or protected if needed)
+// Public routes
 router.get("/series", getTestSeries);
+router.get("/mocks-catalog", getMocksCatalog);
 router.get("/series/:seriesId/tests", getMockTests);
 router.get("/tests/:testId", getTestDetails);
+router.get("/leaderboard", getLeaderboard);
 
-// Protected route - User needs to be logged in to start
-router.get("/tests/:testId/start", startTest);
+// Protected route - requires login to start a test
+router.get("/tests/:testId/start", authenticateUser, startTest);
 
 export default router;

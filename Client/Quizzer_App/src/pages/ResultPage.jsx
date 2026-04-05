@@ -24,17 +24,17 @@ const ResultPage = () => {
     }, [resultId]);
 
     if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
             <div className="text-center">
-                <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-gray-500 text-sm">Loading your result...</p>
+                <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-400"></div>
+                <p className="text-sm text-gray-500 dark:text-slate-400">Loading your result...</p>
             </div>
         </div>
     );
 
     if (!result) return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
-            <div className="text-center text-gray-500">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+            <div className="text-center text-gray-500 dark:text-slate-400">
                 <div className="text-5xl mb-4">😕</div>
                 <p className="font-medium">Result not found.</p>
                 <Button onClick={() => navigate('/dashboard')} className="mt-4 bg-blue-600 text-white hover:bg-blue-700">Back to Dashboard</Button>
@@ -54,18 +54,18 @@ const ResultPage = () => {
     ];
 
     const colorMap = {
-        blue: 'bg-blue-50 border-blue-100 text-blue-700',
-        green: 'bg-green-50 border-green-100 text-green-700',
-        red: 'bg-red-50 border-red-100 text-red-700',
-        gray: 'bg-gray-50 border-gray-200 text-gray-600',
+        blue: 'bg-blue-50 border-blue-100 text-blue-700 dark:bg-blue-950/40 dark:border-blue-900 dark:text-blue-300',
+        green: 'bg-green-50 border-green-100 text-green-700 dark:bg-green-950/40 dark:border-green-900 dark:text-green-300',
+        red: 'bg-red-50 border-red-100 text-red-700 dark:bg-red-950/40 dark:border-red-900 dark:text-red-300',
+        gray: 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300',
     };
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
             {/* Navbar */}
-            <nav className="h-16 px-6 flex items-center gap-3 border-b border-gray-200 bg-white sticky top-0 z-10">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">Q</div>
-                <span className="font-bold text-gray-800">Test Result</span>
+            <nav className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-gray-200 bg-white px-6 dark:border-slate-700 dark:bg-slate-900">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-black text-white dark:bg-blue-500">Q</div>
+                <span className="font-bold text-gray-800 dark:text-slate-100">Test Result</span>
             </nav>
 
             <div className="max-w-3xl mx-auto px-4 py-8 space-y-6 animate-in">
@@ -104,14 +104,14 @@ const ResultPage = () => {
                 </div>
 
                 {/* Section Analysis */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-100">
-                        <h2 className="font-bold text-gray-800">📊 Section-wise Performance</h2>
+                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                    <div className="border-b border-gray-100 px-6 py-4 dark:border-slate-800">
+                        <h2 className="font-bold text-gray-800 dark:text-slate-100">📊 Section-wise Performance</h2>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                <tr className="bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:bg-slate-800 dark:text-slate-400">
                                     <th className="px-6 py-3">Section</th>
                                     <th className="px-6 py-3 text-blue-600">Score</th>
                                     <th className="px-6 py-3 text-green-600">Correct</th>
@@ -119,16 +119,16 @@ const ResultPage = () => {
                                     <th className="px-6 py-3 text-gray-400">Skipped</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
                                 {Object.entries(result.sectionAnalysis || {}).map(([name, stats]) => (
-                                    <tr key={name} className="hover:bg-gray-50/70 transition">
-                                        <td className="px-6 py-4 font-semibold text-gray-800 text-sm">{name}</td>
+                                    <tr key={name} className="transition hover:bg-gray-50/70 dark:hover:bg-slate-800/50">
+                                        <td className="px-6 py-4 text-sm font-semibold text-gray-800 dark:text-slate-200">{name}</td>
                                         <td className="px-6 py-4">
-                                            <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-sm font-bold px-2.5 py-1 rounded-lg">{stats.score}</span>
+                                            <span className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-sm font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">{stats.score}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-green-600 font-semibold text-sm">{stats.correct}</td>
-                                        <td className="px-6 py-4 text-red-500 font-semibold text-sm">{stats.wrong}</td>
-                                        <td className="px-6 py-4 text-gray-400 text-sm">{stats.unattempted}</td>
+                                        <td className="px-6 py-4 text-sm font-semibold text-green-600 dark:text-green-400">{stats.correct}</td>
+                                        <td className="px-6 py-4 text-sm font-semibold text-red-500 dark:text-red-400">{stats.wrong}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">{stats.unattempted}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -137,8 +137,8 @@ const ResultPage = () => {
                 </div>
 
                 {/* Feedback */}
-                <div className={`rounded-2xl border p-5 ${accuracy >= 70 ? 'bg-green-50 border-green-100' : accuracy >= 40 ? 'bg-yellow-50 border-yellow-100' : 'bg-red-50 border-red-100'}`}>
-                    <p className={`font-semibold text-sm ${accuracy >= 70 ? 'text-green-700' : accuracy >= 40 ? 'text-yellow-700' : 'text-red-700'}`}>
+                <div className={`rounded-2xl border p-5 ${accuracy >= 70 ? 'border-green-100 bg-green-50 dark:border-green-900 dark:bg-green-950/40' : accuracy >= 40 ? 'border-yellow-100 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950/40' : 'border-red-100 bg-red-50 dark:border-red-900 dark:bg-red-950/40'}`}>
+                    <p className={`text-sm font-semibold ${accuracy >= 70 ? 'text-green-700 dark:text-green-300' : accuracy >= 40 ? 'text-yellow-700 dark:text-yellow-300' : 'text-red-700 dark:text-red-300'}`}>
                         {accuracy >= 70 ? '🌟 Excellent performance! Keep it up!' : accuracy >= 40 ? '💪 Good effort! Focus on accuracy.' : '📚 Keep practicing! Consistency is key.'}
                     </p>
                 </div>
@@ -147,7 +147,7 @@ const ResultPage = () => {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pb-4">
                     <Button
                         onClick={() => navigate('/dashboard')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 px-10 py-3 text-base font-bold"
+                        className="bg-blue-600 px-10 py-3 text-base font-bold text-white hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
                     >
                         ← Back to Dashboard
                     </Button>

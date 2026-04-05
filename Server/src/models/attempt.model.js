@@ -38,6 +38,34 @@ const attemptSchema = new mongoose.Schema(
                 },
             },
         ],
+        orderedQuestionIds: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Question",
+            },
+        ],
+        currentQuestionIndex: {
+            type: Number,
+            default: 0,
+        },
+        examEndsAt: {
+            type: Date,
+        },
+        perQuestionSeconds: {
+            type: Number,
+        },
+        warningCount: {
+            type: Number,
+            default: 0,
+        },
+        tabSwitchCount: {
+            type: Number,
+            default: 0,
+        },
+        resultId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Result",
+        },
     },
     { timestamps: true }
 );

@@ -52,6 +52,16 @@ export async function authenticateUser(req, res, next) {
   }
 }
 
+export function requireAdmin(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  return next();
+}
+
 // Soft authentication for /me endpoint to avoid 401 console errors
 export async function getProfileUser(req, res, next) {
   try {

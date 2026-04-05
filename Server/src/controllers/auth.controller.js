@@ -92,7 +92,7 @@ export async function googleAuthCallback(req, res) {
 
       res.cookie("token", token, { httpOnly: true });
       // redirect to frontend dashboard after setting cookie
-      return res.redirect('http://localhost:5173/dashboard');
+      return res.redirect(`${_config.CLIENT_URL}/dashboard`);
     }
 
     // Create a new user if not exist
@@ -123,10 +123,20 @@ export async function googleAuthCallback(req, res) {
 
     res.cookie("token", token, { httpOnly: true });
     // redirect to frontend dashboard after signup
-    return res.redirect('http://localhost:5173/dashboard');
+    return res.redirect(`${_config.CLIENT_URL}/dashboard`);
   } catch (error) {
     console.error("Error in googleAuthCallback:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    const dbIssue =
+      error.name === "MongooseError" ||
+      /MongoNetworkError|MongoServerSelectionError|not connected/i.test(
+        String(error.message)
+      );
+    if (dbIssue) {
+      return res.redirect(
+        `${_config.CLIENT_URL}/auth?error=database_unavailable`
+      );
+    }
+    return res.redirect(`${_config.CLIENT_URL}/auth?error=oauth_failed`);
   }
 }
 
@@ -189,7 +199,7 @@ export async function logout(req, res) {
     return res.status(500).json({
       message: "Internal Server Error",
     });
-  } 
+  }
 }
 
 export async function me(req, res) {

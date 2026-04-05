@@ -8,6 +8,10 @@ const DB_URI = _config.MONGO_URI;
 
 const seedData = async () => {
     try {
+        if (!DB_URI) {
+            console.error("Missing MONGO_URI. Add it to Server/.env before seeding.");
+            process.exit(1);
+        }
         console.log("Seeding to:", DB_URI);
         await mongoose.connect(DB_URI);
         console.log("Connected to MongoDB for seeding...");
@@ -31,6 +35,12 @@ const seedData = async () => {
             isActive: true,
         });
 
+        const upscSeries = await TestSeries.create({
+            name: "UPSC",
+            description: "Civil Services Preliminary Examination",
+            isActive: true,
+        });
+
         console.log("Created Test Series.");
 
         // 2. Create Mock Tests
@@ -45,6 +55,47 @@ const seedData = async () => {
                 { name: "General Awareness", duration: 10, totalQuestions: 5 },
                 { name: "Quantitative Aptitude", duration: 20, totalQuestions: 5 },
                 { name: "English Comprehension", duration: 15, totalQuestions: 5 },
+            ],
+        });
+
+        const sscPaidMock = await MockTest.create({
+            title: "SSC CGL Premium Mock — Pro Pack",
+            testSeriesId: sscSeries._id,
+            totalTime: 60,
+            price: 99,
+            isActive: true,
+            sections: [
+                { name: "General Intelligence", duration: 15, totalQuestions: 5 },
+                { name: "General Awareness", duration: 10, totalQuestions: 5 },
+                { name: "Quantitative Aptitude", duration: 20, totalQuestions: 5 },
+                { name: "English Comprehension", duration: 15, totalQuestions: 5 },
+            ],
+        });
+
+        const bankMock = await MockTest.create({
+            title: "Banking Foundation Mock 1",
+            testSeriesId: bankSeries._id,
+            totalTime: 45,
+            price: 0,
+            isActive: true,
+            sections: [
+                { name: "Reasoning", duration: 15, totalQuestions: 5 },
+                { name: "Quantitative Aptitude", duration: 15, totalQuestions: 5 },
+                { name: "English", duration: 15, totalQuestions: 5 },
+            ],
+        });
+
+        const upscMock = await MockTest.create({
+            title: "UPSC Prelims Mock 1",
+            testSeriesId: upscSeries._id,
+            totalTime: 60,
+            price: 0,
+            isActive: true,
+            sections: [
+                { name: "History", duration: 15, totalQuestions: 5 },
+                { name: "Polity", duration: 15, totalQuestions: 5 },
+                { name: "Geography", duration: 15, totalQuestions: 5 },
+                { name: "Economy", duration: 15, totalQuestions: 5 },
             ],
         });
 
@@ -72,6 +123,20 @@ const seedData = async () => {
         await createQuestions(sscMock._id, "General Awareness", 5);
         await createQuestions(sscMock._id, "Quantitative Aptitude", 5);
         await createQuestions(sscMock._id, "English Comprehension", 5);
+
+        await createQuestions(sscPaidMock._id, "General Intelligence", 5);
+        await createQuestions(sscPaidMock._id, "General Awareness", 5);
+        await createQuestions(sscPaidMock._id, "Quantitative Aptitude", 5);
+        await createQuestions(sscPaidMock._id, "English Comprehension", 5);
+
+        await createQuestions(bankMock._id, "Reasoning", 5);
+        await createQuestions(bankMock._id, "Quantitative Aptitude", 5);
+        await createQuestions(bankMock._id, "English", 5);
+
+        await createQuestions(upscMock._id, "History", 5);
+        await createQuestions(upscMock._id, "Polity", 5);
+        await createQuestions(upscMock._id, "Geography", 5);
+        await createQuestions(upscMock._id, "Economy", 5);
 
         console.log("Created Questions.");
 

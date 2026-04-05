@@ -7,10 +7,14 @@ import _config from "./src/config/config.js";
   try {
     await connectDB();
     // await connectRabbit();
-    app.listen(3000, () => {
-      console.log(`Auth server running on port 3000`);
+    app.listen(_config.PORT, () => {
+      console.log(`Auth server running on port ${_config.PORT}`);
     });
   } catch (err) {
-    console.error("Failed to start server:", err);
+    console.error("Failed to start server:", err?.message || err);
+    console.error(
+      "Fix: set MONGO_URI in Server/.env, check internet/VPN, and MongoDB Atlas → Network Access (allow your IP or 0.0.0.0/0 for dev)."
+    );
+    process.exit(1);
   }
 })();

@@ -11,9 +11,18 @@ const testSeriesSchema = new mongoose.Schema(
         description: {
             type: String,
         },
+        category: {
+            type: String,
+            trim: true,
+            default: "",
+        },
         isActive: {
             type: Boolean,
             default: true,
+        },
+        sortOrder: {
+            type: Number,
+            default: 0,
         },
     },
     { timestamps: true }
